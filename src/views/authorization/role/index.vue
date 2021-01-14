@@ -6,7 +6,7 @@
           <el-input
             v-model="query.searchKey"
             placeholder="请输入角色名称"
-            style="width: 350px;"
+            style="width: 350px"
             class="filter-item"
             @keyup.enter.native="handleRoleFilter"
           />
@@ -16,7 +16,9 @@
             type="primary"
             icon="el-icon-search"
             @click="handleRoleFilter"
-          >搜索</el-button>
+            v-permission="{ name: 'role-search' }"
+            >搜索</el-button
+          >
 
           <el-button
             v-waves
@@ -24,7 +26,8 @@
             type="default"
             icon="el-icon-clear"
             @click="handleClear"
-          >清除</el-button>
+            >清除</el-button
+          >
           <div class="filter-container">
             <el-button
               v-waves
@@ -32,7 +35,9 @@
               class="filter-item"
               type="success"
               icon="el-icon-plus"
-            >新增</el-button>
+              v-permission="{ name: 'role-create' }"
+              >新增</el-button
+            >
           </div>
         </div>
       </el-col>
@@ -48,19 +53,58 @@
           style="width: 100%"
         >
           <el-table-column type="index" width="50"></el-table-column>
-          <el-table-column prop="name" label="角色名" min-width="100"></el-table-column>
-          <el-table-column prop="memo" label="备注" min-width="150"></el-table-column>
+          <el-table-column
+            prop="name"
+            label="角色名"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="identification"
+            label="标识"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="displayOrganizations"
+            label="所属部门"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="dataPermissionTypeDes"
+            label="数据权限"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="memo"
+            label="备注"
+            min-width="150"
+          ></el-table-column>
           <el-table-column label="状态" class-name="status-col">
             <template slot-scope="{ row }">
               <el-tag :type="row.status | statusTagFilter">
-                {{
-                row.status | statusFilter
-                }}
+                {{ row.status | statusFilter }}
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="lastModificationUserName" label="更新人" min-width="100"></el-table-column>
-          <el-table-column prop="lastModificationTime" label="更新时间" min-width="100"></el-table-column>
+          <el-table-column
+            prop="creatorUserName"
+            label="创建人"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="creationTime"
+            label="创建时间"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="lastModificationUserName"
+            label="更新人"
+            min-width="100"
+          ></el-table-column>
+          <el-table-column
+            prop="lastModificationTime"
+            label="更新时间"
+            min-width="100"
+          ></el-table-column>
           <el-table-column
             label="操作"
             align="center"
@@ -73,21 +117,68 @@
                 size="mini"
                 icon="el-icon-edit"
                 @click="handleUpdate(row)"
-              >编辑</el-button>
+                v-permission="{ name: 'role-update' }"
+                >编辑</el-button
+              >
+              <el-popconfirm
+                title="您确定要删除该角色吗?"
+                placement="top"
+                @onConfirm="handleDelete(row)"
+              >
+                <el-button
+                  type="danger"
+                  size="mini"
+                  icon="el-icon-delete"
+                  slot="reference"
+                  v-permission="{ name: 'role-delete' }"
+                  >删除</el-button
+                >
+              </el-popconfirm>
 
-              <el-button
-                type="danger"
-                size="mini"
-                icon="el-icon-delete"
-                @click="handleDelete(row)"
-              >删除</el-button>
-
-              <el-button
-                type="success"
-                size="mini"
-                icon="el-icon-setting"
-                @click="handleSetPermission(row)"
-              >权限</el-button>
+              <!-- <el-button type="success" size="mini" @click="handleLook(row)">
+                <svg-icon icon-class="look" />
+                查看</el-button
+              > -->
+              <el-badge :is-dot="false" size="mini" class="item">
+                <el-dropdown size="mini" style="margin-left: 10px">
+                  <el-button type="primary" size="mini" class="filter-item">
+                    更多
+                    <i class="el-icon-arrow-down el-icon--right" />
+                  </el-button>
+                  <el-dropdown-menu
+                    slot="dropdown"
+                    style="width: 95px; padding: 5px 0"
+                  >
+                    <el-badge :is-dot="false" size="mini" class="item">
+                      <el-dropdown-item
+                        v-if="row.status == 1"
+                        @click.native="handleModifyStatus(row, 'freeze')"
+                        v-permission="{ name: 'role-status' }"
+                        ><svg-icon
+                          icon-class="freeze"
+                        />&nbsp;冻结</el-dropdown-item
+                      >
+                      <el-dropdown-item
+                        v-if="row.status == 0"
+                        @click.native="handleModifyStatus(row, 'activate')"
+                        v-permission="{ name: 'role-status' }"
+                        ><svg-icon
+                          icon-class="activate"
+                        />&nbsp;激活</el-dropdown-item
+                      >
+                    </el-badge>
+                    <el-badge :is-dot="false" size="mini" class="item">
+                      <el-dropdown-item
+                        @click.native="handleLook(row)"
+                        v-permission="{ name: 'role-look' }"
+                        ><svg-icon
+                          icon-class="look"
+                        />&nbsp;查看</el-dropdown-item
+                      >
+                    </el-badge>
+                  </el-dropdown-menu>
+                </el-dropdown>
+              </el-badge>
             </template>
           </el-table-column>
         </el-table>
@@ -100,16 +191,6 @@
         />
       </el-col>
     </el-row>
-    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogFormVisible" width="30%">
-      <role-form ref="role" :role="role" :dialogStatus="dialogStatus"></role-form>
-      <div slot="footer" class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button
-          type="primary"
-          @click="dialogStatus === 'create' ? createData() : updateData()"
-        >确认</el-button>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -117,17 +198,13 @@
 import { mapActions } from "vuex";
 import waves from "@/directive/waves"; // waves directive
 import Pagination from "@/components/Pagination"; // secondary package based on el-pagination
-import RoleForm from "./components/role-form.vue";
-// const defaultRole = {
-//   name: "",
-//   memo: "",
-//   status: true,
-
-// }
+import RoleForm from "./components/RoleForm.vue";
+import { Loading } from "element-ui";
+import permission from "@/directive/permission/index.js";
 export default {
   components: {
     Pagination,
-    RoleForm
+    RoleForm,
   },
   filters: {
     statusFilter(status) {
@@ -137,12 +214,19 @@ export default {
     statusTagFilter(status) {
       const statusMap = ["danger", "success"];
       return statusMap[status];
-    }
+    },
   },
-  directives: { waves },
+  directives: {
+    waves,
+    permission,
+  },
   data() {
     return {
-      query: { searchKey: undefined, pageCount: 10, pageIndex: 1 },
+      query: {
+        searchKey: undefined,
+        pageCount: 10,
+        pageIndex: 1,
+      },
       listLoading: false,
       totalCount: 0,
       roleData: [],
@@ -150,26 +234,35 @@ export default {
       dialogFormVisible: false,
       role: {
         name: undefined,
-        memo: undefined
+        memo: undefined,
+        orgIds: [],
+        permissionIds: [],
       },
       textMap: {
         update: "编辑角色",
-        create: "新增角色"
-      }
+        create: "新增角色",
+        look: "查看角色",
+      },
     };
   },
   mounted() {
     this.loadRoleData();
   },
   methods: {
-    ...mapActions("role", ["queryRole", "create", "update", "delete"]),
+    ...mapActions("role", [
+      "search",
+      "create",
+      "update",
+      "delete",
+      "updateStatus",
+    ]),
     handleRoleFilter() {
       this.query.pageIndex = 1;
       this.loadRoleData();
     },
     loadRoleData() {
       this.listLoading = true;
-      this.queryRole(this.query).then(data => {
+      this.search(this.query).then((data) => {
         this.totalCount = data.totalCount;
         this.roleData = data.items;
         // Just to simulate the time of the request
@@ -179,48 +272,28 @@ export default {
       });
     },
     handleCreate() {
-      this.resetRoleInfo();
-      this.dialogStatus = "create";
-      this.dialogFormVisible = true;
-      this.$nextTick(() => {
-        this.$refs["role"].$refs["roleForm"].clearValidate();
+      this.$router.push({
+        name: "role-create",
       });
     },
     handleUpdate(row) {
-      this.resetRoleInfo();
-      this.role = Object.assign({}, row); // copy obj
-      this.dialogStatus = "update";
-      this.dialogFormVisible = true;
-
-      this.$nextTick(() => {
-        this.$refs["role"].$refs["roleForm"].clearValidate();
+      this.$router.push({
+        name: "role-update",
+        query: {
+          id: row.id,
+        },
       });
     },
     handleDelete(row) {
-      this.$confirm(`您是否确认删除该角色?`, "提示", {
-        confirmButtonText: "确定",
-        cancelButtonText: "取消",
-        type: "warning"
-      })
-        .then(() => {
-          this.delete(row.id).then(data => {
-            this.$notify({
-              title: "成功",
-              message: data,
-              type: "success",
-              duration: 2000
-            });
-            this.loadRoleData();
-          });
-        })
-        .catch(err => {
-          this.$notify({
-            title: "提示",
-            message: "取消删除操作",
-            type: "info",
-            duration: 2000
-          });
+      this.delete(row.id).then((data) => {
+        this.$notify({
+          title: "成功",
+          message: data,
+          type: "success",
+          duration: 2000,
         });
+        this.loadRoleData();
+      });
     },
     handleClear() {
       this.query.pageIndex = 1;
@@ -230,45 +303,52 @@ export default {
     resetRoleInfo() {
       this.role = {
         name: undefined,
-        memo: undefined
+        memo: undefined,
+        permissionIds: [],
       };
     },
-    createData() {
-      this.$refs["role"].$refs["roleForm"].validate(valid => {
-        if (valid) {
-          this.create(this.role).then(data => {
-            this.dialogFormVisible = false;
+    handleLook(row) {
+    },
+    handleModifyStatus(row, operate) {
+      let operateDesc;
+      let status = 0;
+      if (operate == "freeze") {
+        operateDesc = "冻结";
+        status = 0;
+      }
+      if (operate == "activate") {
+        operateDesc = "激活";
+        status = 1;
+      }
+      this.$confirm(`您是否确认${operateDesc}该角色?`, "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning",
+      })
+        .then(() => {
+          this.updateStatus({
+            id: row.id,
+            status: status,
+          }).then((data) => {
             this.$notify({
               title: "成功",
               message: data,
               type: "success",
-              duration: 2000
+              duration: 2000,
             });
-            this.resetRoleInfo();
             this.loadRoleData();
           });
-        }
-      });
-    },
-    updateData() {
-      this.$refs["role"].$refs["roleForm"].validate(valid => {
-        if (valid) {
-          this.update(this.role).then(data => {
-            this.dialogFormVisible = false;
-            this.$notify({
-              title: "成功",
-              message: data,
-              type: "success",
-              duration: 2000
-            });
-            this.resetRoleInfo();
-            this.loadRoleData();
+        })
+        .catch((err) => {
+          this.$notify({
+            title: "提示",
+            message: `取消${operateDesc}操作${err};`,
+            type: "info",
+            duration: 2000,
           });
-        }
-      });
+        });
     },
-    handleSetPermission() {}
-  }
+  },
 };
 </script>
 

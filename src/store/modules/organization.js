@@ -14,6 +14,16 @@ const actions = {
             })
         })
     },
+    getOwnOrgTree({ commit }) {
+        return new Promise((resolve, reject) => {
+            Organization.getOwnOrgTree().then(response => {
+                const { data } = response
+                resolve(data)
+            }).catch(err => {
+                reject(err)
+            })
+        })
+    },    
     getDeptPosition({ commit }, deptId) {
         return new Promise((resolve, reject) => {
             Department.getDeptPosition(deptId).then(response => {
@@ -121,9 +131,9 @@ const actions = {
             })
         })
     },
-    checkCanDeletePosition({ commit }, input) {
+    checkCanDeletePosition({ commit }, id) {
         return new Promise((resolve, reject) => {
-            Position.checkCanDeletePosition(input).then(response => {
+            Position.checkCanDeletePosition(id).then(response => {
                 const { data } = response
                 resolve(data)
             }).catch(err => {

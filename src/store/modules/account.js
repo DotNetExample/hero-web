@@ -1,4 +1,4 @@
-import { login, getLoginUser } from '@/api/account'
+import { login, getLoginUser, getOperations } from '@/api/account'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
@@ -7,7 +7,8 @@ const state = {
   name: '',
   avatar: '',
   introduction: '',
-  roles: []
+  roles: [],
+  operations: []
 }
 
 const mutations = {
@@ -26,15 +27,20 @@ const mutations = {
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_OPERATIONS: (state, operations) => {
+    state.operations = operations
+  },
+  SET_CURRENT_MENUID: (state,currentMenuId) => {
+    state.currentMenuId = currentMenuId
   }
 }
 
 const actions = {
   // user login
-  login({ commit }, userInfo) {
-    const { userName, password } = userInfo
+  login({ commit }, loginInput) {
     return new Promise((resolve, reject) => {
-      login({ userName: userName.trim(), password: password }).then(response => {
+      login(loginInput).then(response => {
         const { data } = response
         commit('SET_TOKEN', data)
         setToken(data)
@@ -71,7 +77,19 @@ const actions = {
       })
     })
   },
-
+  getOperations({ commit, dispatch, state }, menuName) {
+    return new Promise((resolve, reject) => {
+      getOperations(menuName).then(response => {
+        const { data } = response
+        commit('SET_OPERATIONS', data)
+       // reset visited views and cached views
+       // dispatch('tagsView/delAllViews', null, { root: true })
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  },
   // remove token
   resetToken({ commit }) {
     return new Promise(resolve => {
@@ -81,7 +99,12 @@ const actions = {
       resolve()
     })
   },
-
+  setCurrentMenuId({ commit }, menuId) {
+    return new Promise((resolve, reject) => {
+      commit('SET_CURRENT_MENUID', menuId)
+      resolve()
+    })
+  },
   // dynamically modify permissions
   changeRoles({ commit, dispatch }, role) {
     return new Promise(async resolve => {

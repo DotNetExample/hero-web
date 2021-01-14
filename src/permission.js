@@ -13,7 +13,6 @@ const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
-
   // set page title
   document.title = getPageTitle(to.meta.title)
 
@@ -30,13 +29,16 @@ router.beforeEach(async(to, from, next) => {
       //const hasRoles = store.getters.roles && store.getters.roles.length > 0
       const userName = store.getters.name;
       if (userName) {
+        if (to.meta.permissionMenuName) {
+          await store.dispatch('account/getOperations',to.meta.permissionMenuName)
+        }               
         next()
       } else {
         try {
           // get user info
           // note: roles must be a object array! such as: ['admin'] or ,['developer','editor']
           await store.dispatch('account/getLoginUser')
-
+          await store.dispatch('systemconfig/getSystemConfig');
           // generate accessible routes map based on roles
           const accessRoutes = await store.dispatch('permission/generateRoutes')
 

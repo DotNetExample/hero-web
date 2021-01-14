@@ -7,6 +7,9 @@ import 'normalize.css/normalize.css' // a modern alternative to CSS resets
 import Element from 'element-ui'
 import './styles/element-variables.scss'
 
+import '@/element-ui-theme'
+import '@/assets/scss/index.scss'
+
 import '@/styles/index.scss' // global css
 
 import App from './App'
@@ -20,6 +23,14 @@ import './utils/error-log' // error log
 import * as filters from './filters' // global filters
 
 import ElTreeSelect from 'el-tree-select';
+
+
+import "classlist-polyfill";
+//插件的包
+import PerfectScrollbar from 'perfect-scrollbar';
+//对应的css
+import "perfect-scrollbar/css/perfect-scrollbar.css";
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
